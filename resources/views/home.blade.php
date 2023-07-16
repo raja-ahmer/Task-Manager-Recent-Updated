@@ -39,7 +39,7 @@
                                 </thead>
                                 <tbody id="Content">
                                     @foreach ($task as $item)
-                                        <tr id='tableData' class="text-center">
+                                        <tr class="text-center">
                                             <td>{{ $item->name }}</td>
                                             <td>{{ Str::substr($item->description, 0, 40) }}</td>
                                             <td>{{ $item->startDate }}</td>
@@ -86,7 +86,7 @@
         // });
     </script>
 
-    {{-- Script to filter data in table by time --}}
+    {{-- AJAX Script to filter data in table by time --}}
     <script type="text/javascript">
         $(document).ready(function(){
             $('#timeFilter').on('change', function(){
@@ -99,12 +99,10 @@
                     data : {'timeFilter' : filter},
                     success:function(data){
                         console.log(data);
-                        $('#tableData').empty();
-                        $('#tableData').html(data.table);
-                        // data.forEach()
+                        $('#Content').empty();
+                        $('#Content').html(data.table);
                     }
                 });
-
             });
         });
     </script>

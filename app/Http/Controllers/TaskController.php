@@ -42,22 +42,18 @@ class TaskController extends Controller
         $task->save();
 
         return redirect('/home');
-
     }
 
     public function view_task(Request $request)
     {
-        if($request->ajax())
-        {
+        if ($request->ajax()) {
             if ($request->timeFilter == 'today') {
                 $tasks = Task::where('endDate', '=', today())->get();
-
-
             }
             elseif ($request->timeFilter == "week") {
                 $current_dayname = date("l"); // return sunday monday tuesday etc.
-                $weekStartDate = date("Y-m-d",strtotime('monday this week'));
-                $weekEndDate = date("Y-m-d",strtotime("$current_dayname this week")) ;
+                $weekStartDate = date("Y-m-d", strtotime('monday this week'));
+                $weekEndDate = date("Y-m-d", strtotime("$current_dayname this week"));
 
 
                 $weekStartDate = new DateTime($weekStartDate);
@@ -69,31 +65,37 @@ class TaskController extends Controller
 
                 // $date = date("Y-m-d",strtotime('monday this week')).'to'.date("Y-m-d",strtotime("$current_dayname this week"));
                 // dd($weekEndDate);
-                $tasks = Task::whereBetween('endDate',[$weekStartDate,$weekEndDate] )->get();
+                $tasks = Task::whereBetween('endDate', [$weekStartDate, $weekEndDate])->get();
                 // dd($task);
             }
             elseif ($request->timeFilter == "all") {
                 $tasks = Task::with('getCategory')->get();
             }
 
-            foreach($tasks as $task) {
-                $table = '<td>' . $task->name . '</td>' .
-                '<td>' . $task->description . '</td>' .
-                '<td>' . $task->startDate . '</td>' .
-                '<td>' . $task->endDate . '</td>' .
-                '<td>' . $task->getCategory->name . '</td>' .
-                '<td><span class="badge bg-success p-2">Active</span></td>' .
-                '<td><a href=' . "route('edit_task', ['id' =>" . $task->taskId . "]) style='text-decoration: none'><button
-                    class='btn btn-warning'>Edit</button></a>&nbsp;"
-                ;
+            foreach ($tasks as $task) {
+                $table = '<tr class="text-center"><td>' . $task->name . '</td>' .
+                    '<td>' . $task->description . '</td>' .
+                    '<td>' . $task->startDate . '</td>' .
+                    '<td>' . $task->endDate . '</td>' .
+                    '<td>' . $task->getCategory->name . '</td>' .
+                    '<td><span class="badge bg-success p-2">Active</span></td>' .
+                    '<td>' .
+                    '<a href="' . route('edit_task', ['id' => $task->taskId]) . '" style="text-decoration: none">
+                    <button class="btn btn-warning">Edit</button>
+                    </a>&nbsp;' .
+                    '<a href="' . route('delete_task', ['id' => $task->taskId]) . '"
+                    onclick="return confirm("Are you sure you want to delete?")" style="text-decoration: none">
+                    <button class="btn btn-danger">Delete</button> </a>' .
+                    '</td>
+                </tr>';
             }
 
             // dd($table);
             return response()->json([
                 'task' => $tasks,
-                'table'=> $table
+                'table' => $table
             ]);
-        }else{
+        } else {
             $task = Task::with('getCategory')->get();
 
             $data = compact('task');
@@ -117,8 +119,7 @@ class TaskController extends Controller
         $task = Task::find($id);
         if (!is_null($id)) {
             $task->delete();
-        }
-        else {
+        } else {
             echo '<div class="alert alert-danger">Task not found</div>';
         }
         return redirect('/home');
@@ -131,11 +132,10 @@ class TaskController extends Controller
 
         if (is_null($task)) {
             return view('home');
-        }
-        else {
+        } else {
             // $task1 = Task::with('getCategory')->get();
             $url = url('/home/update-task') . '/' . $id;
-            $data = compact('url', 'task','category');
+            $data = compact('url', 'task', 'category');
             return view('edit-task')->with($data);
         }
     }
